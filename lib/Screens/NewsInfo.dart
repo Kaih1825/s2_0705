@@ -20,11 +20,12 @@ class NewsInfo extends StatefulWidget {
 }
 
 class _NewsInfoState extends State<NewsInfo> {
-  GlobalKey<ScaffoldState> key=GlobalKey();
-  var commentController=TextEditingController();
-  var emailController=TextEditingController();
-  var pwdController=TextEditingController();
-  var nameController=TextEditingController();
+  GlobalKey<ScaffoldState> key = GlobalKey();
+  var commentController = TextEditingController();
+  var emailController = TextEditingController();
+  var pwdController = TextEditingController();
+  var nameController = TextEditingController();
+  var showpwd = false.obs;
 
   @override
   void initState() {
@@ -33,9 +34,9 @@ class _NewsInfoState extends State<NewsInfo> {
     getSp();
   }
 
-  void getSp()async{
-    var sp=await SharedPreferences.getInstance();
-    isLogin.value=sp.getBool("isLogin")??false;
+  void getSp() async {
+    var sp = await SharedPreferences.getInstance();
+    isLogin.value = sp.getBool("isLogin") ?? false;
   }
 
   @override
@@ -45,158 +46,277 @@ class _NewsInfoState extends State<NewsInfo> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.edit),
         onPressed: () {
-          if(isLogin.value){
-            key.currentState!.showBottomSheet((context) =>Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  color: Color(0xff9BC4EAFF),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20))),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(controller: commentController,decoration: InputDecoration(
-                        hintText: "回應內容"
-                    ),),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          if (isLogin.value) {
+            key.currentState!.showBottomSheet((context) => Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                      color: Color(0xff9BC4EAFF),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        ElevatedButton(onPressed: ()async{
-                          var jsonMap={};
-                          jsonMap["文章編號"]=widget.jsonText["文章編號"];
-                          var now=DateTime.now();
-                          jsonMap["回應日期"]="${now.month.toString().padLeft(2,'0')}/${now.day.toString().padLeft(2,'0')}/${now.year.toString()}";
-                          jsonMap["發布者"]=await Sql().getName();
-                          jsonMap["回應內容"]=commentController.text;
-                          widget.commentArray.add(jsonMap);
-                          Get.back();
-                          setState(() {});
-                        }, child: Text("送出")),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ElevatedButton(onPressed: (){
-                            Get.back();
-                          }, child: Text("取消")),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ));
-          }else{
-            key.currentState!.showBottomSheet((context) =>Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  color: Color(0xff9BC4EAFF),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20))),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("登入",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                    TextField(controller: emailController,decoration: InputDecoration(
-                        hintText: "帳號"
-                    ),),
-                    TextField(controller: pwdController,decoration: InputDecoration(
-                        hintText: "密碼"
-                    ),),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(onPressed: ()async{
-                          if(await Sql().login(emailController.text, pwdController.text)){
-                            Get.back();
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("登入成功")));
-                          }else{
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("登入失敗")));
-                          }
-                        }, child: Text("送出")),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ElevatedButton(onPressed: (){
-                            Get.back();
-                          }, child: Text("取消")),
+                        TextField(
+                          controller: commentController,
+                          decoration: InputDecoration(hintText: "回應內容"),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: ElevatedButton(onPressed: (){
-                            Get.back();
-                            key.currentState!.showBottomSheet((context) => Container(
-                              width: double.infinity,
-                              decoration: const BoxDecoration(
-                                  color: Color(0xff9BC4EAFF),
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20))),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Text("註冊",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                    TextField(controller: emailController,decoration:const InputDecoration(
-                                        hintText: "帳號"
-                                    ),),
-                                    TextField(controller: pwdController,decoration:const InputDecoration(
-                                        hintText: "密碼"
-                                    ),),
-                                    TextField(controller: nameController,decoration:const InputDecoration(
-                                        hintText: "暱稱"
-                                    ),),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(onPressed: ()async{
-                                          if(!GetUtils.isEmail(emailController.text)){
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Email格式錯誤")));
-                                            return;
-                                          }
-                                          var pwd=pwdController.text;
-                                          if(!((pwd.contains(RegExp("[A-Z]")) &&
-                                              pwd.contains(RegExp("[a-z]")) &&
-                                              pwd.contains(RegExp("[\\W]")) &&
-                                              pwd.contains(RegExp("[0-9]"))) ||
-                                              (pwd.length > 8 &&
-                                                  pwd.length < 15))){
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("密碼格式錯誤")));
-                                            return;
-                                          }
-                                          if(await Sql().insert(emailController.text, pwdController.text, nameController.text)){
-                                            Get.back();
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("註冊成功")));
-                                          }else{
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("註冊失敗")));
-                                          }
-                                        }, child: Text("送出")),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                                          child: ElevatedButton(onPressed: (){
-                                            Get.back();
-                                          }, child: Text("取消")),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ));
-                          }, child: Text("註冊")),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () async {
+                                  var jsonMap = {};
+                                  jsonMap["文章編號"] = widget.jsonText["文章編號"];
+                                  var now = DateTime.now();
+                                  jsonMap["回應日期"] =
+                                      "${now.month.toString().padLeft(2, '0')}/${now.day.toString().padLeft(2, '0')}/${now.year.toString()}";
+                                  jsonMap["發布者"] = await Sql().getName();
+                                  jsonMap["回應內容"] = commentController.text;
+                                  widget.commentArray.add(jsonMap);
+                                  Get.back();
+                                  setState(() {});
+                                },
+                                child: Text("送出")),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("取消")),
+                            )
+                          ],
                         )
                       ],
-                    )
-                  ],
-                ),
-              ),
-            ));
+                    ),
+                  ),
+                ));
+          } else {
+            key.currentState!.showBottomSheet((context) => Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                      color: Color(0xff9BC4EAFF),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "登入",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(hintText: "帳號"),
+                        ),
+                        Obx(() => TextField(
+                          controller: pwdController,
+                          obscureText: !showpwd.value,
+                          decoration: InputDecoration(
+                              hintText: "密碼",
+                              suffix: Obx(() => IconButton(
+                                icon: Icon(showpwd.value
+                                    ? Icons.visibility_off
+                                    : Icons.visibility),
+                                onPressed: () {
+                                  showpwd.value = !showpwd.value;
+                                  print(showpwd);
+                                },
+                              ),)
+                          ),
+                        ),),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () async {
+                                  if (await Sql().login(emailController.text,
+                                      pwdController.text)) {
+                                    Get.back();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("登入成功")));
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("登入失敗")));
+                                  }
+                                },
+                                child: Text("送出")),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("取消")),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                    key.currentState!
+                                        .showBottomSheet((context) => Container(
+                                              width: double.infinity,
+                                              decoration: const BoxDecoration(
+                                                  color: Color(0xff9BC4EAFF),
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  20),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  20))),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Text(
+                                                      "註冊",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20),
+                                                    ),
+                                                    TextField(
+                                                      controller:
+                                                          emailController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                              hintText: "帳號"),
+                                                    ),
+                                                    TextField(
+                                                      controller: pwdController,
+                                                      obscureText: !showpwd.value,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        hintText: "密碼",
+                                                        suffix: IconButton(
+                                                          icon: Obx(() => Icon(showpwd.value
+                                                              ? Icons
+                                                              .visibility_off
+                                                              : Icons
+                                                              .visibility)),
+                                                          onPressed: () {
+                                                            showpwd.value = !showpwd.value;
+                                                            setState(() {});
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    TextField(
+                                                      controller:
+                                                          nameController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                              hintText: "暱稱"),
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        ElevatedButton(
+                                                            onPressed:
+                                                                () async {
+                                                              if (!GetUtils.isEmail(
+                                                                  emailController
+                                                                      .text)) {
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(SnackBar(
+                                                                        content:
+                                                                            Text("Email格式錯誤")));
+                                                                return;
+                                                              }
+                                                              var pwd =
+                                                                  pwdController
+                                                                      .text;
+                                                              if (!((pwd.contains(RegExp("[A-Z]")) &&
+                                                                      pwd.contains(
+                                                                          RegExp(
+                                                                              "[a-z]")) &&
+                                                                      pwd.contains(
+                                                                          RegExp(
+                                                                              "[\\W]")) &&
+                                                                      pwd.contains(
+                                                                          RegExp(
+                                                                              "[0-9]"))) ||
+                                                                  (pwd.length >
+                                                                          8 &&
+                                                                      pwd.length <
+                                                                          15))) {
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(SnackBar(
+                                                                        content:
+                                                                            Text("密碼格式錯誤")));
+                                                                return;
+                                                              }
+                                                              if (await Sql().insert(
+                                                                  emailController
+                                                                      .text,
+                                                                  pwdController
+                                                                      .text,
+                                                                  nameController
+                                                                      .text)) {
+                                                                Get.back();
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(SnackBar(
+                                                                        content:
+                                                                            Text("註冊成功")));
+                                                              } else {
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(SnackBar(
+                                                                        content:
+                                                                            Text("註冊失敗")));
+                                                              }
+                                                            },
+                                                            child: Text("送出")),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: ElevatedButton(
+                                                              onPressed: () {
+                                                                Get.back();
+                                                              },
+                                                              child:
+                                                                  Text("取消")),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ));
+                                  },
+                                  child: Text("註冊")),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ));
           }
-
         },
       ),
       body: SafeArea(
