@@ -23,7 +23,6 @@ class _FavoriteState extends State<Favorite> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     getTags();
-
   }
 
   void getTags() async {
@@ -43,12 +42,14 @@ class _FavoriteState extends State<Favorite> with TickerProviderStateMixin {
       }
     }
     controller = TabController(length: allTags.length, vsync: this);
-    tisArticleMap=articleMap;
+    tisArticleMap = articleMap;
     controller!.addListener(() {
-      var tag=allTags[controller!.index];
-      tisArticleMap=tag=="全部"?articleMap:articleMap.where((element){
-        return element["主分類"]==tag;
-      }).toList(growable: false);
+      var tag = allTags[controller!.index];
+      tisArticleMap = tag == "全部"
+          ? articleMap
+          : articleMap.where((element) {
+              return element["主分類"] == tag;
+            }).toList(growable: false);
       setState(() {});
     });
     setState(() {});
@@ -95,101 +96,131 @@ class _FavoriteState extends State<Favorite> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  if(controller!=null)Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: TabBar(
-                      controller: controller,
-                      isScrollable: true,
-                      tabs: [for (var i in allTags) Tab(text: i)],
-                      indicatorColor: Colors.white,
-                      indicatorPadding: EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                  )
+                  if (controller != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: 5.0),
+                      child: TabBar(
+                        controller: controller,
+                        isScrollable: true,
+                        tabs: [for (var i in allTags) Tab(text: i)],
+                        indicatorColor: Colors.white,
+                        indicatorPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                    )
                 ],
               ),
             ],
           ),
-          if(controller!=null)Expanded(
-            child: TabBarView(controller: controller, children: [
-              for (var i in allTags)
-                ListView.builder(
-                  itemCount: tisArticleMap.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return favoriteArray[int.parse(tisArticleMap[index]["文章編號"].toString() )-1]?Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: tisArticleMap[index]["發文日期"] != null
-                          ? Card(
-                        child: InkWell(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(tisArticleMap[index]["發文日期"]),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Text(tisArticleMap[index]
-                                    ["發布者"] ??
-                                        "未知"),
-                                  ),
-                                  Spacer(),
-                                  IconButton(
-                                      onPressed: () async{
-                                        await ArticleSql().setFavorite(tisArticleMap[index].toString());
-                                        favoriteArray[int.parse(
-                                            tisArticleMap[index]["文章編號"]
-                                                .toString()) -
-                                            1]=await ArticleSql().getFavorite(tisArticleMap[index].toString());
-                                        setState(() {});
-                                      },
-                                      icon: favoriteArray[int.parse(
-                                          tisArticleMap[index]["文章編號"]
-                                              .toString()) -
-                                          1] ? Icon(Icons.favorite) : Icon(Icons.favorite_border))
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    tisArticleMap[index]["主分類"],
-                                    style: TextStyle(
-                                        color: Color(0xff1D1Ac7),
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0),
-                                    child: Text(
-                                        tisArticleMap[index]["子分類"] ?? ""),
-                                  )
-                                ],
-                              ),
-                              Text(
-                                tisArticleMap[index]["標題"],
-                                maxLines: 2,
-                              )
-                            ],
-                          ),
-                          onTap: () {
-                            Get.to(NewsInfo(
-                              jsonText: tisArticleMap[index],
-                              commentArray: commentArray[int.parse(
-                                  tisArticleMap[index]["文章編號"]
-                                      .toString()) -
-                                  1],
-                            ));
-                          },
-                        ),
-                      )
-                          : Container(),
-                    ):Container();
-                  },
-                )
-            ]),
-          )
+          if (controller != null)
+            Expanded(
+              child: TabBarView(controller: controller, children: [
+                for (var i in allTags)
+                  ListView.builder(
+                    itemCount: tisArticleMap.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return favoriteArray[int.parse(
+                                  tisArticleMap[index]["文章編號"].toString()) -
+                              1]
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: tisArticleMap[index]["發文日期"] != null
+                                  ? Card(
+                                      child: InkWell(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(tisArticleMap[index]
+                                                    ["發文日期"]),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.0),
+                                                  child: Text(
+                                                      tisArticleMap[index]
+                                                              ["發布者"] ??
+                                                          "未知"),
+                                                ),
+                                                Spacer(),
+                                                IconButton(
+                                                    onPressed: () async {
+                                                      await ArticleSql()
+                                                          .setFavorite(
+                                                              tisArticleMap[
+                                                                      index]
+                                                                  .toString());
+                                                      favoriteArray[
+                                                          int.parse(tisArticleMap[
+                                                                          index]
+                                                                      ["文章編號"]
+                                                                  .toString()) -
+                                                              1] = await ArticleSql()
+                                                          .getFavorite(
+                                                              tisArticleMap[
+                                                                      index]
+                                                                  .toString());
+                                                      setState(() {});
+                                                    },
+                                                    icon: favoriteArray[int.parse(
+                                                                tisArticleMap[
+                                                                            index]
+                                                                        ["文章編號"]
+                                                                    .toString()) -
+                                                            1]
+                                                        ? Icon(Icons.favorite)
+                                                        : Icon(Icons
+                                                            .favorite_border))
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  tisArticleMap[index]["主分類"],
+                                                  style: TextStyle(
+                                                      color: Color(0xff1D1Ac7),
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.0),
+                                                  child: Text(
+                                                      tisArticleMap[index]
+                                                              ["子分類"] ??
+                                                          ""),
+                                                )
+                                              ],
+                                            ),
+                                            Text(
+                                              tisArticleMap[index]["標題"],
+                                              maxLines: 2,
+                                            )
+                                          ],
+                                        ),
+                                        onTap: () {
+                                          Get.to(NewsInfo(
+                                            jsonText: tisArticleMap[index],
+                                            commentArray: commentArray[
+                                                int.parse(tisArticleMap[index]
+                                                            ["文章編號"]
+                                                        .toString()) -
+                                                    1],
+                                          ));
+                                        },
+                                      ),
+                                    )
+                                  : Container(),
+                            )
+                          : Container();
+                    },
+                  )
+              ]),
+            )
         ],
       ),
     );
